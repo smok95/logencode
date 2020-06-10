@@ -1,11 +1,11 @@
 {
-    "name": "flutter_web",
-    "short_name": "flutter_web",
+    "name": "로젠택배 지점코드 검색",
+    "short_name": "로젠코드검색",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "로젠택배 지점코드 검색 프로그램입니다.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
