@@ -16,8 +16,8 @@ class LogenCodeApp extends StatelessWidget {
       title: '로젠택배 지점코드 검색',
       initialRoute: '/',
       routes: {
-        '/': (_) => HomePage(title: 'Home'),
-        '/dorojuso': (_) => JusoPage(title: 'doro'),
+        '/': (context) => HomePage(title: 'Home'),
+        '/dorojuso': (context) => JusoPage(title: 'doro'),
       },
     );
   }
@@ -37,6 +37,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext ctx) {
+    print('HomePage build call');
     final _backColor = Color.fromARGB(255, 0x61, 0x55, 0x32);
     final _iconColor = Colors.brown[100];
     final _hintTextColor = _iconColor;
@@ -71,26 +72,26 @@ class _HomePageState extends State<HomePage> {
                     : null),
           )),
       body: _codeListview,
-      /* 웹앱에서 다음API 페이지가 표시되지 않는 현상 , 2020.06.10
-        원인파악, 귀찮으니 그냥 웹에서는 지원하지 않는걸로...
       floatingActionButton: Builder(builder: (context) {
         return FloatingActionButton.extended(
             backgroundColor: _backColor,
             onPressed: () {
-              Scaffold.of(context).hideCurrentSnackBar();
-
-              Navigator.pushNamed(ctx, '/dorojuso').then((value) {
-                _searchFromDaumAddress(context, value);
-              });
-
-              FocusScope.of(context).unfocus();
-              print('press');
+             // Scaffold.of(context).hideCurrentSnackBar();
+              _navigateAndSearchAddress(context);
             },
             label: Text('도로명주소 검색'),
             icon: Icon(Icons.search));
       }),
-      */
     );
+  }
+
+  void _navigateAndSearchAddress(BuildContext context) async {
+    final value = await Navigator.pushNamed(context, '/dorojuso');
+    if (value != null) {
+      _searchFromDaumAddress(context, value);
+    }
+
+    FocusScope.of(context).unfocus();
   }
 
   void _searchFromDaumAddress(BuildContext context, String src) {
@@ -139,6 +140,9 @@ class _HomePageState extends State<HomePage> {
 
     // Find the Scaffold in the widget tree and use
     // it to show a SnackBar.
+    print("call Scaffold.of...");
+    
+    Scaffold.of(context).hideCurrentSnackBar();
     Scaffold.of(context).showSnackBar(snackBar);
   }
 

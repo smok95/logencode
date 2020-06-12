@@ -1,5 +1,7 @@
+import 'dart:html' as html;
+
+import 'package:easy_web_view/easy_web_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 class JusoPage extends StatefulWidget {
   final String title;
@@ -9,62 +11,53 @@ class JusoPage extends StatefulWidget {
 }
 
 class _JusoPageState extends State<JusoPage> {
-  final _webviewPlugin = FlutterWebviewPlugin();
+  static ValueKey key = ValueKey('key_0');
+  html.EventListener _messageEventListener = null;
+
   @override
   Widget build(BuildContext ctx) {
     return _buildWebview(ctx);
-
-    final _backColor = Color.fromARGB(255, 0x61, 0x55, 0x32);
-    final _iconColor = Colors.brown[100];
-    final _hintTextColor = _iconColor;
-    final _textColor = Colors.white;
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: _backColor, //Colors.brown,
-        titleSpacing: 0.0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: _iconColor,
-          ),
-          onPressed: () {
-            Navigator.pop(ctx);
-          },
-        ),
-        title: Text('도로명주소 검색'),
-      ),
-      body: Text('this is body'),
-    );
   }
 
   Widget _buildWebview(BuildContext ctx) {
+    if (_messageEventListener == null) {
+      _messageEventListener = _handleMessage;
+    }
     final _backColor = Color.fromARGB(255, 0x61, 0x55, 0x32);
     //final url = 'http://smok95.woobi.co.kr/daumapi_flutter.html';
-    final url = 'https://smok95.github.io/LogenCodeSearch';
-    return WebviewScaffold(
-      url: url,
-      appBar: AppBar(
-        title: const Text('도로명주소 검색'),
-        backgroundColor: _backColor,
-      ),
-      withZoom: true,
-      withLocalStorage: true,
-      javascriptChannels: Set.from([
-        JavascriptChannel(
-          name: 'flutter',
-          onMessageReceived: (message) {
-            Navigator.pop(ctx, message.message);
-            //_webviewPlugin.close();
-          },
-        ),
-      ]),
-      hidden: true,
-      initialChild: Container(
-        color: Colors.grey,
-        child: const Center(
-          child: Text('연결중...'),
-        ),
-      ),
+    final url = 'https://smok95.github.io/LogenCodeSearch/index_webapp.html';
+
+    var count = 0;
+    final appbar = AppBar(
+      title: Text('도로명주소 검색'),
+      backgroundColor: _backColor,
     );
+    return Scaffold(
+      appBar: appbar,
+      body: EasyWebView(
+          key: key,
+          src: url,
+          onLoaded: () {
+            count++;
+
+            if (count > 1) return;
+
+            //print('onLoaded, count=${count}, key=${key} src=$url');
+            html.window.addEventListener("message", _messageEventListener);
+          }),
+    );
+  }
+
+  void _handleMessage(html.Event event) {
+    html.MessageEvent msg = event as html.MessageEvent;
+    final message = msg?.data ?? null;
+    _back(message);
+  }
+
+  void _back(String message) {
+    html.window.removeEventListener("message", _messageEventListener);
+    _messageEventListener = null;
+
+    Navigator.of(context).maybePop(message);
   }
 }
